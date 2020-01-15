@@ -160,7 +160,7 @@ public class LaunchImpl extends Launch {
 				.doFinally(new Action() {
 					@Override
 					public void run() throws Exception {
-						rpClient.close();
+//						rpClient.close();
 					}
 				})
 				.ignoreElement()

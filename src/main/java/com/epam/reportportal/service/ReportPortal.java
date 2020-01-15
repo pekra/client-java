@@ -522,7 +522,7 @@ public class ReportPortal {
 					.doFinally(new Action() {
 						@Override
 						public void run() throws Exception {
-							rpClient.close();
+//							rpClient.close();
 						}
 					})
 					.cache();
