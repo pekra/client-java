@@ -476,6 +476,12 @@ public class ReportPortal {
 		}
 
 		private void waitForLaunchStart() {
+
+			try {
+				Thread.sleep(3000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 			new Waiter("Wait for Launch start").pollingEvery(1, TimeUnit.SECONDS).timeoutFail().till(new Callable<Boolean>() {
 				private volatile Boolean result = null;
 
