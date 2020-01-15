@@ -40,7 +40,6 @@ import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.MaybeEmitter;
 import io.reactivex.MaybeOnSubscribe;
-import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.http.client.HttpClient;
@@ -477,7 +476,7 @@ public class ReportPortal {
 
 		private void waitForLaunchStart() {
 
-			new Waiter("Wait for Launch start").pollingEvery(5, TimeUnit.SECONDS).timeoutFail().till(new Callable<Boolean>() {
+			new Waiter("Wait for Launch start").pollingEvery(1, TimeUnit.SECONDS).timeoutFail().till(new Callable<Boolean>() {
 				private volatile Boolean result = null;
 
 				@Override
@@ -524,17 +523,14 @@ public class ReportPortal {
 
 		@Override
 		public void finish(final FinishExecutionRQ rq) {
-			QUEUE.getUnchecked(launch).addToQueue(LaunchLoggingContext.complete());
-			final Completable finish = Completable.concat(QUEUE.getUnchecked(this.launch).getChildren())
-					.doFinally(new Action() {
-						@Override
-						public void run() throws Exception {
-//							rpClient.close();
-						}
-					})
-					.cache();
+			TreeItem unchecked = QUEUE.getUnchecked(this.launch);
+			LOGGER.warn("CHILDREN: " + unchecked.getChildren().size());
 			try {
-				finish.timeout(getParameters().getReportingTimeout(), TimeUnit.SECONDS).blockingGet();
+				Throwable throwable = Completable.concat(unchecked.getChildren())
+						.blockingGet(getParameters().getReportingTimeout(), TimeUnit.SECONDS);
+				if (throwable != null) {
+					throwable.printStackTrace();
+				}
 			} catch (Exception e) {
 				LOGGER.error("Unable to finish secondary launch in ReportPortal", e);
 			} finally {
@@ -589,7 +585,7 @@ public class ReportPortal {
 				@Override
 				public void subscribe(final MaybeEmitter<String> emitter) {
 					emitter.onSuccess(uuid);
-//					emitter.onComplete();
+					//					emitter.onComplete();
 				}
 			});
 			return new SecondaryLaunch(rpClient, parameters, launch);
