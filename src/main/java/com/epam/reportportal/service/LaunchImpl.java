@@ -43,6 +43,7 @@ import java.util.concurrent.TimeUnit;
 import static com.epam.reportportal.service.LoggingCallback.*;
 import static com.epam.reportportal.utils.SubscriptionUtils.logCompletableResults;
 import static com.epam.reportportal.utils.SubscriptionUtils.logMaybeResults;
+import static com.google.common.collect.Lists.newArrayList;
 
 /**
  * @author Andrei Varabyeu
@@ -296,7 +297,9 @@ public class LaunchImpl extends Launch {
 			QUEUE.getUnchecked(parent).addToQueue(finishCompletion);
 		} else {
 			//seems like this is root item
-			QUEUE.getUnchecked(this.launch).addToQueue(finishCompletion);
+			TreeItem unchecked = QUEUE.getUnchecked(this.launch);
+			unchecked.addToQueue(finishCompletion);
+			LOGGER.warn("INSIDE FINISH METHOD, CHILDREN COUNT: "+ unchecked.getChildren().size());
 		}
 
 		return finishResponse;
@@ -320,7 +323,7 @@ public class LaunchImpl extends Launch {
 		}
 
 		List<Completable> getChildren() {
-			return this.children;
+			return newArrayList(this.children);
 		}
 
 		Maybe<String> getParent() {
