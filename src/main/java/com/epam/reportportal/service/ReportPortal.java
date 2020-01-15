@@ -36,9 +36,11 @@ import com.epam.ta.reportportal.ws.model.log.SaveLogRQ;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.MaybeEmitter;
 import io.reactivex.MaybeOnSubscribe;
+import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.http.client.HttpClient;
@@ -515,8 +517,24 @@ public class ReportPortal {
 
 		@Override
 		public void finish(final FinishExecutionRQ rq) {
-			// ignore that call, since only primary launch should finish it
-			lockFile.finishInstanceUuid(instanceUuid);
+			QUEUE.getUnchecked(launch).addToQueue(LaunchLoggingContext.complete());
+			final Completable finish = Completable.concat(QUEUE.getUnchecked(this.launch).getChildren())
+					.doFinally(new Action() {
+						@Override
+						public void run() throws Exception {
+							rpClient.close();
+						}
+					})
+					.cache();
+			try {
+				finish.timeout(getParameters().getReportingTimeout(), TimeUnit.SECONDS).blockingGet();
+			} catch (Exception e) {
+				LOGGER.error("Unable to finish secondary launch in ReportPortal", e);
+			} finally {
+				// ignore that call, since only primary launch should finish it
+				lockFile.finishInstanceUuid(instanceUuid);
+			}
+
 		}
 	}
 
