@@ -559,11 +559,12 @@ public class ReportPortal {
 				throw new InternalReportPortalClientException("Unable to clone start launch request:", e);
 			}
 		} else {
+			LOGGER.warn("SECONDARY LAUNCH CREATED");
 			Maybe<String> launch = Maybe.create(new MaybeOnSubscribe<String>() {
 				@Override
 				public void subscribe(final MaybeEmitter<String> emitter) {
 					emitter.onSuccess(uuid);
-					emitter.onComplete();
+//					emitter.onComplete();
 				}
 			});
 			return new SecondaryLaunch(rpClient, parameters, launch);
