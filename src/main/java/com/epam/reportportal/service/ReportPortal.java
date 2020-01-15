@@ -485,11 +485,17 @@ public class ReportPortal {
 					launch.subscribe(new Consumer<String>() {
 						@Override
 						public void accept(String uuid) {
+							try {
+								Thread.sleep(5000);
+							} catch (InterruptedException e) {
+								e.printStackTrace();
+							}
 							Maybe<LaunchResource> maybeRs = rpClient.getLaunchByUuid(uuid);
 							if (maybeRs != null) {
 								maybeRs.subscribe(new Consumer<LaunchResource>() {
 									@Override
 									public void accept(LaunchResource launchResource) {
+										LOGGER.warn("LAUNCH FOUND");
 										result = Boolean.TRUE;
 									}
 								}, new Consumer<Throwable>() {
