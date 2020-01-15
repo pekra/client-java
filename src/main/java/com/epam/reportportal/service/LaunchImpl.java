@@ -43,7 +43,6 @@ import java.util.concurrent.TimeUnit;
 import static com.epam.reportportal.service.LoggingCallback.*;
 import static com.epam.reportportal.utils.SubscriptionUtils.logCompletableResults;
 import static com.epam.reportportal.utils.SubscriptionUtils.logMaybeResults;
-import static com.google.common.collect.Lists.newArrayList;
 
 /**
  * @author Andrei Varabyeu
@@ -321,7 +320,7 @@ public class LaunchImpl extends Launch {
 		}
 
 		List<Completable> getChildren() {
-			return newArrayList(this.children);
+			return this.children;
 		}
 
 		Maybe<String> getParent() {
