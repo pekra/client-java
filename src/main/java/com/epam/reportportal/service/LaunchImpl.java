@@ -175,7 +175,7 @@ public class LaunchImpl extends Launch {
 		} catch (Exception e) {
 			LOGGER.error("Unable to finish launch in ReportPortal", e);
 		} finally {
-			rpClient.close();
+//			rpClient.close();
 		}
 	}
 
