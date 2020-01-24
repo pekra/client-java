@@ -283,11 +283,13 @@ public class LaunchImpl extends Launch {
 				return itemId.flatMap(new Function<String, Maybe<OperationCompletionRS>>() {
 					@Override
 					public Maybe<OperationCompletionRS> apply(String itemId) {
+						LOGGER.warn("TEST ITEM FINISHED");
 						rq.setLaunchUuid(launchId);
 						return rpClient.finishTestItem(itemId, rq)
 								.retry(new RetryWithDelay(new Predicate<Throwable>() {
 									@Override
 									public boolean test(Throwable throwable) {
+										throwable.printStackTrace();
 										return throwable instanceof ReportPortalException
 												&& ErrorType.FINISH_ITEM_NOT_ALLOWED.equals(((ReportPortalException) throwable).getError()
 												.getErrorType());
