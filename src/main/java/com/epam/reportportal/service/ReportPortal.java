@@ -537,6 +537,7 @@ public class ReportPortal {
 				if (throwable != null) {
 					throwable.printStackTrace();
 				}
+				Thread.sleep(3000);
 			} catch (Exception e) {
 				LOGGER.error("Unable to finish secondary launch in ReportPortal", e);
 			} finally {
